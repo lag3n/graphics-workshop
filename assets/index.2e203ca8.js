@@ -1,4 +1,4 @@
-import{s as M,l as j,a as _,b as q,R as L,t as I,c as N,p as S}from"./vendor.b3c0b267.js";const E=function(){const o=document.createElement("link").relList;if(o&&o.supports&&o.supports("modulepreload"))return;for(const t of document.querySelectorAll('link[rel="modulepreload"]'))c(t);new MutationObserver(t=>{for(const e of t)if(e.type==="childList")for(const m of e.addedNodes)m.tagName==="LINK"&&m.rel==="modulepreload"&&c(m)}).observe(document,{childList:!0,subtree:!0});function a(t){const e={};return t.integrity&&(e.integrity=t.integrity),t.referrerpolicy&&(e.referrerPolicy=t.referrerpolicy),t.crossorigin==="use-credentials"?e.credentials="include":t.crossorigin==="anonymous"?e.credentials="omit":e.credentials="same-origin",e}function c(t){if(t.ep)return;t.ep=!0;const e=a(t);fetch(t.href,e)}};E();var R="/graphics-workshop/assets/gengar.obj.372efedb.json",A="/graphics-workshop/assets/knot.obj.937920cf.json",G="/graphics-workshop/assets/sphere.obj.4e2aaece.json",O="/graphics-workshop/assets/suzanne.obj.c35b0f43.json",k="/graphics-workshop/assets/teapot.obj.40bf042c.json",V=`precision mediump float;
+import{s as M,l as j,a as _,b as q,R as L,t as N,c as I,p as S}from"./vendor.b3c0b267.js";const E=function(){const o=document.createElement("link").relList;if(o&&o.supports&&o.supports("modulepreload"))return;for(const t of document.querySelectorAll('link[rel="modulepreload"]'))c(t);new MutationObserver(t=>{for(const n of t)if(n.type==="childList")for(const m of n.addedNodes)m.tagName==="LINK"&&m.rel==="modulepreload"&&c(m)}).observe(document,{childList:!0,subtree:!0});function a(t){const n={};return t.integrity&&(n.integrity=t.integrity),t.referrerpolicy&&(n.referrerPolicy=t.referrerpolicy),t.crossorigin==="use-credentials"?n.credentials="include":t.crossorigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function c(t){if(t.ep)return;t.ep=!0;const n=a(t);fetch(t.href,n)}};E();var R="/graphics-workshop/assets/gengar.obj.372efedb.json",A="/graphics-workshop/assets/knot.obj.937920cf.json",G="/graphics-workshop/assets/sphere.obj.4e2aaece.json",O="/graphics-workshop/assets/suzanne.obj.c35b0f43.json",k="/graphics-workshop/assets/teapot.obj.40bf042c.json",V=`precision mediump float;
 
 uniform vec2 resolution;
 uniform float time;
@@ -12,22 +12,24 @@ void main() {
     color.z += abs(sin(time));
 
     // 1. Uncomment these lines to draw triangles
-    // vec2 squareCoord = 20.0 * gl_FragCoord.xy / resolution.y + vec2(time);
-    // vec2 loc = fract(squareCoord);
-    // color = vec3(smoothstep(-0.05, 0.05, loc.y - loc.x));
+    vec2 squareCoord = 20.0 * gl_FragCoord.xy / resolution.y + vec2(time);
+    vec2 loc = fract(squareCoord);
+    color = vec3(smoothstep(-0.05, 0.05, loc.y - loc.x));
 
     // 2. Uncomment these lines to invert some of the triangles
-    // vec2 cell = squareCoord - loc;
-    // if (mod(2.0 * cell.x + cell.y, 5.0) == 1.0) {
-    //     color = 1.0 - color;
-    // }
+    vec2 cell = squareCoord - loc;
+    if (mod(4.0 * cell.x + 2.0 * cell.y, 5.0) == 1.0) {
+        color = 1.0 - color;
+    }
 
     // 3. Uncomment these lines to produce interesting colors
-    // float c = mod(3.0 * cell.x + 2.0 * cell.y, 7.0) / 7.0;
-    // color = 1.0 - (1.0 - color) * vec3(c, c, c);
+    float c1 = mod(2.0 * cell.x + 2.0 * cell.y, 7.0) / 7.0;
+    float c2 = mod(3.0 * cell.x + 2.0 * cell.y, 7.0) / 7.0;
+    float c3 = mod(3.0 * cell.x + 1.0 * cell.y, 10.0) / 10.0;
+    color = 1.0 - (1.0 - color) * vec3(c1, c2, c3);
 
     // 4. Uncomment to lighten the colors
-    // color = sqrt(color);
+    color = sqrt(color);
 
     gl_FragColor = vec4(color, 1.0);
 }
@@ -53,7 +55,12 @@ vec3 illuminate(vec3 lightPosition) {
     float intensity = 1.0 / dot(wi, wi); // inverse-square law
     vec3 diffuse = kd * max(dot(normalize(wi), normalize(vNormal)), 0.0);
 
-    vec3 specular = vec3(0.0); // Change me!
+    vec3 wo = normalize(eye - vPosition);
+    vec3 r = reflect(normalize(wi), normalize(vNormal));
+    float d = abs(pow(dot(r, wo), length(ks)));
+    vec3 new = d * ks;
+
+    vec3 specular = new;
 
     return intensity * (diffuse + specular);
 }
@@ -123,32 +130,38 @@ void main() {
     vec3 color = 0.5 + 0.5 * vec3(noise1, noise2, noise8);
 
     // 1. Fractal noise scales: uncomment each line, one at a time
-    // color = vec3(0.5);
-    // color += 0.5 * noise8;
-    // color += 0.25 * noise4;
-    // color += 0.1 * noise2;
-    // color += 0.05 * noise1;
+    color = vec3(0.5);
+    color += 0.5 * noise8;
+    color += 0.25 * noise4;
+    color += 0.1 * noise2;
+    color += 0.05 * noise1;
 
     // 2. Generate "water" and "land"
-    // float elevation = 0.3 - 0.2 * max(length(coord) - 20.0, 0.0);
-    // elevation += noise8 + noise4 * 0.2 + noise2 * 0.1 + noise1 * 0.05;
-    // float landFactor = smoothstep(-0.05, 0.05, elevation);
-    // float deepSea = smoothstep(-0.1, -0.3, elevation);
-    // float deepColor = 0.8 - 0.3 * smoothstep(-0.2, -0.5, elevation);
-    // vec3 waterColor = mix(vec3(0.2, 0.2, 0.8), vec3(0.0, 0.0, deepColor), deepSea);
-    // color = mix(waterColor, vec3(0.0, 0.6, 0.0), landFactor);
+    float elevation = 0.3 - 0.2 * max(length(coord) - 20.0, 0.0);
+    elevation += noise8 + noise4 * 0.2 + noise2 * 0.1 + noise1 * 0.05;
+    float landFactor = smoothstep(-0.05, 0.05, elevation);
+    float deepSea = smoothstep(-0.1, -0.3, elevation);
+    float deepColor = 0.8 - 0.3 * smoothstep(-0.2, -0.5, elevation);
+    vec3 waterColor = mix(vec3(0.2, 0.2, 0.8), vec3(0.0, 0.0, deepColor), deepSea);
+    color = mix(waterColor, vec3(0.0, 0.6, 0.0), landFactor);
 
     // 3. Generate "mountains" and "beaches" based on elevation
-    // float mountainFactor = (elevation - 1.0) * 5.0;
-    // vec3 mountainColor = vec3(0.12, 0.15, 0.1);
-    // mountainColor = mix(mountainColor, vec3(0.4, 0.32, 0.4), smoothstep(0.7, 0.8, mountainFactor));
-    // mountainColor = mix(mountainColor, vec3(0.9, 0.9, 0.9), smoothstep(1.1, 1.15, mountainFactor));
-    // vec3 landColor = mix(vec3(0.0, 0.6, 0.0), mountainColor, smoothstep(0.0, 0.1, mountainFactor));
-    // float grassFactor = smoothstep(0.75, 0.7, elevation);
-    // landColor = mix(landColor, vec3(0.2, 0.8, 0.0), grassFactor);
-    // float beachFactor = smoothstep(0.5, 0.4, elevation);
-    // landColor = mix(landColor, vec3(0.9, 0.9, 0.5), beachFactor);
-    // color = mix(waterColor, landColor, landFactor);
+    float mountainFactor = (elevation - 1.0) * 5.0;
+    vec3 mountainColor = vec3(0.12, 0.15, 0.1);
+    mountainColor = mix(mountainColor, vec3(0.4, 0.32, 0.4), smoothstep(0.7, 0.8, mountainFactor));
+    mountainColor = mix(mountainColor, vec3(0.9, 0.9, 0.9), smoothstep(1.1, 1.15, mountainFactor));
+    vec3 landColor = mix(vec3(0.0, 0.6, 0.0), mountainColor, smoothstep(0.0, 0.1, mountainFactor));
+    float grassFactor = smoothstep(0.75, 0.7, elevation);
+    landColor = mix(landColor, vec3(0.2, 0.8, 0.0), grassFactor);
+    float beachFactor = smoothstep(0.5, 0.4, elevation);
+    landColor = mix(landColor, vec3(0.9, 0.9, 0.5), beachFactor);
+    color = mix(waterColor, landColor, landFactor);
+
+    float temp = 0.2 - 0.1 * max(length(coord) - 20.0, 0.0);
+    temp += noise8 + noise4 * 0.4 + noise2 * 0.2 + noise1 * 0.1;
+    float heatFactor = 1.0 - smoothstep(-1.05, 1.05, temp);
+    vec3 heatColor = mix(vec3(1.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0), vec3(0.0, 0.0, 0.0));
+    color = mix(color, heatColor, heatFactor);
 
     gl_FragColor = vec4(color, 1.0);
 }
@@ -256,6 +269,11 @@ vec3 illuminate(vec3 lightPosition) {
     float intensity = 1.0 / dot(wi, wi); // inverse-square law
     vec3 diffuse = kd * max(dot(normalize(wi), normalize(vNormal)), 0.0);
 
+    vec3 wo = normalize(eye - vPosition);
+    vec3 r = reflect(normalize(wi), normalize(vNormal));
+    float d = abs(pow(dot(r, wo), length(ks)));
+    vec3 new = d * ks;
+
     // 1. Your specular highlights code goes here!
     //
     // This is the outline of what your program should do:
@@ -270,7 +288,7 @@ vec3 illuminate(vec3 lightPosition) {
     //    result is not negative!)
     //  - Multiply the result by specular coefficient ks.
 
-    vec3 specular = vec3(0.0); // Change me!
+    vec3 specular = new; // Change me!
 
     return intensity * (diffuse + specular);
 }
@@ -374,6 +392,8 @@ Hit intersect(Ray r) {
         Material(vec3(1.0, 0.4, 0.2), vec3(0.8), true, false));
     sphere(h, r, vec4(-3.5, -1.2, -6.0, 0.8),
         Material(vec3(0.2, 0.6, 0.3), vec3(0.8), false, false));
+    sphere(h, r, vec4(-6.5, -0.8, -8.0, 1.2),
+        Material(vec3(0.7, 0.2, 0.6), vec3(0.8), false, false));
     circle(h, r, -2.0, 50.0,
         Material(vec3(0.8, 0.8, 0.8), vec3(0.0), false, true));
     return h;
@@ -383,6 +403,12 @@ Hit intersect(Ray r) {
 vec3 illuminate(vec3 lightPosition, vec3 pos, vec3 wo, Hit h) {
     vec3 wi = lightPosition - pos;
     vec3 kd = h.material.kd;
+
+    Ray r1 = Ray(pos, wi);
+    if(intersect(r1).time != inf) {
+        return vec3(0.0);
+    }
+
     if (h.material.checker) {
         // Checkerboard pattern for the floor
         vec2 coords = floor(pos.xz);
@@ -404,6 +430,7 @@ vec3 calcLighting(vec3 pos, vec3 wo, Hit h) {
     vec3 color = vec3(0.0);
     color += 100.0 * illuminate(vec3(-3.0, 10.0, 0.0), pos, wo, h);
     color += 200000.0 * illuminate(vec3(0.0, 1000.0, 0.0), pos, wo, h);
+    color += 2003.0 * illuminate(vec3(5.0, 600.0, 0.0), pos, wo, h);
     return color;
 }
 
@@ -462,4 +489,4 @@ void main() {
 void main() {
     gl_Position = vec4(position, 0.0, 1.0);
 }
-`;const s={quiltFrag:V,quiltVert:H,contoursFrag:T,contoursVert:U,landscapeFrag:D,landscapeVert:Y,shadingFrag:B,shadingVert:X,raytracingFrag:J,raytracingVert:K};function Q(n,{eye:o,center:a}){let c=!1,t=null;const e={eye:o,center:a},m=l=>{c=!0,t=[l.screenX/n.height,l.screenY/n.height]},h=l=>{if(!c)return;const[w,b]=[l.screenX/n.height,l.screenY/n.height],[P,z]=t;t=[w,b];const f=M([],e.eye,e.center),p=j(f);let u=Math.acos(f[1]/p),y=Math.atan2(f[2],f[0]);u=Math.min(Math.max(u-5*(b-z),1e-8),Math.PI-1e-8),y+=5*(w-P),_(e.eye,p*Math.cos(y)*Math.sin(u),p*Math.cos(u),p*Math.sin(y)*Math.sin(u)),q(e.eye,e.eye,e.center)},x=()=>{c=!1};return n.addEventListener("mousedown",m),n.addEventListener("mousemove",h),n.addEventListener("mouseup",x),n.addEventListener("touchstart",l=>m(l.touches[0])),n.addEventListener("touchmove",l=>h(l.touches[0])),n.addEventListener("touchend",x),e}const i=L({extensions:["OES_standard_derivatives"]}),g=Q(document.getElementsByTagName("canvas")[0],{eye:[1,0,5.2],center:[0,0,0]}),r=W();let d=null;function W(){const n=new I.exports.Pane({title:"Controls"}),o={project:"quilt",seed:0,scale:20,mesh:k,fps:0,kd:{r:95,g:230,b:213},ks:{r:240,g:240,b:240},shininess:5,background:{r:120,g:178,b:255},antialias:!0};n.addInput(o,"project",{options:{"Quilt patterns":"quilt","Procedural landscapes":"landscape","Rasterization and shading":"shading","Stylized rendering":"contours","Ray tracing":"raytracing"}});const a=[[n.addInput(o,"seed",{min:0,max:1}),["quilt","landscape"]],[n.addInput(o,"scale",{min:10,max:30}),["landscape"]],[n.addInput(o,"mesh",{options:{Gengar:R,Knot:A,Sphere:G,Suzanne:O,Teapot:k}}).on("change",e=>C(e.value)),["shading","contours"]],[n.addInput(o,"kd"),["shading","contours"]],[n.addInput(o,"ks"),["shading","contours"]],[n.addInput(o,"shininess",{min:1,max:9}),["shading","contours"]],[n.addInput(o,"background"),["raytracing"]],[n.addInput(o,"antialias"),["raytracing"]]];n.addMonitor(o,"fps"),n.addSeparator(),n.addButton({title:"Instructions"}).on("click",()=>{const e=document.createElement("a");e.href="https://github.com/ekzhang/graphics-workshop#readme",e.target="_blank",e.click()});const c=localStorage.getItem("graphics-workshop");if(c)try{n.importPreset(JSON.parse(c))}catch(e){console.warn(`Error loading saved preset: ${e}`)}const t=()=>{const e=n.exportPreset();localStorage.setItem("graphics-workshop",JSON.stringify(e));for(const[m,h]of a)m.hidden=!h.includes(o.project)};return t(),n.on("change",t),o}async function C(n){d=await(await fetch(n)).json()}function v(n){return[n.r/255,n.g/255,n.b/255]}function $(){try{return{quilt:i({frag:s.quiltFrag,vert:s.quiltVert}),landscape:i({frag:s.landscapeFrag,vert:s.landscapeVert}),shading:i({frag:s.shadingFrag,vert:s.shadingVert}),contours:i({frag:s.contoursFrag,vert:s.contoursVert}),raytracing:i({frag:s.raytracingFrag,vert:s.raytracingVert})}}catch{return null}}const Z=i({attributes:{position:[[-1,1],[-1,-1],[1,1],[1,-1]]},elements:[[0,1,2],[2,1,3]],uniforms:{view:()=>N([],g.eye,g.center,[0,1,0]),projection:({drawingBufferWidth:n,drawingBufferHeight:o})=>{const a=n/o;return S([],Math.PI/6,a,.01,100)},eye:()=>g.eye,center:()=>g.center,resolution:({drawingBufferWidth:n,drawingBufferHeight:o})=>[n,o],time:i.context("time")}}),nn={quilt:i({uniforms:{seed:()=>r.seed}}),landscape:i({uniforms:{seed:()=>r.seed,scale:()=>r.scale}}),shading:i({attributes:{position:()=>d.vertices,normal:()=>d.normals},uniforms:{kd:()=>v(r.kd),ks:()=>v(r.ks),shininess:()=>r.shininess},elements:()=>d.elements}),contours:i({attributes:{position:()=>d.vertices,normal:()=>d.normals},uniforms:{kd:()=>v(r.kd),ks:()=>v(r.ks),shininess:()=>r.shininess},elements:()=>d.elements}),raytracing:i({uniforms:{background:()=>v(r.background),antialias:()=>r.antialias}})};let F=$();C(r.mesh).then(()=>{const n=[...Array(60)].fill(0);i.frame(()=>{const o=n.shift(),a=performance.now();n.push(a),o!==0&&(r.fps=1e3/((a-o)/n.length)),Z(()=>{r.project==="contours"?i.clear({color:[1,1,1,1]}):i.clear({color:[0,0,0,1]}),nn[r.project](()=>{F&&F[r.project]()})})})});
+`;const s={quiltFrag:V,quiltVert:H,contoursFrag:T,contoursVert:U,landscapeFrag:D,landscapeVert:Y,shadingFrag:B,shadingVert:X,raytracingFrag:J,raytracingVert:K};function Q(e,{eye:o,center:a}){let c=!1,t=null;const n={eye:o,center:a},m=l=>{c=!0,t=[l.screenX/e.height,l.screenY/e.height]},h=l=>{if(!c)return;const[w,b]=[l.screenX/e.height,l.screenY/e.height],[P,z]=t;t=[w,b];const f=M([],n.eye,n.center),p=j(f);let v=Math.acos(f[1]/p),y=Math.atan2(f[2],f[0]);v=Math.min(Math.max(v-5*(b-z),1e-8),Math.PI-1e-8),y+=5*(w-P),_(n.eye,p*Math.cos(y)*Math.sin(v),p*Math.cos(v),p*Math.sin(y)*Math.sin(v)),q(n.eye,n.eye,n.center)},x=()=>{c=!1};return e.addEventListener("mousedown",m),e.addEventListener("mousemove",h),e.addEventListener("mouseup",x),e.addEventListener("touchstart",l=>m(l.touches[0])),e.addEventListener("touchmove",l=>h(l.touches[0])),e.addEventListener("touchend",x),n}const i=L({extensions:["OES_standard_derivatives"]}),g=Q(document.getElementsByTagName("canvas")[0],{eye:[1,0,5.2],center:[0,0,0]}),r=W();let d=null;function W(){const e=new N.exports.Pane({title:"Controls"}),o={project:"quilt",seed:0,scale:20,mesh:k,fps:0,kd:{r:95,g:230,b:213},ks:{r:240,g:240,b:240},shininess:5,background:{r:120,g:178,b:255},antialias:!0};e.addInput(o,"project",{options:{"Quilt patterns":"quilt","Procedural landscapes":"landscape","Rasterization and shading":"shading","Stylized rendering":"contours","Ray tracing":"raytracing"}});const a=[[e.addInput(o,"seed",{min:0,max:1}),["quilt","landscape"]],[e.addInput(o,"scale",{min:10,max:30}),["landscape"]],[e.addInput(o,"mesh",{options:{Gengar:R,Knot:A,Sphere:G,Suzanne:O,Teapot:k}}).on("change",n=>C(n.value)),["shading","contours"]],[e.addInput(o,"kd"),["shading","contours"]],[e.addInput(o,"ks"),["shading","contours"]],[e.addInput(o,"shininess",{min:1,max:9}),["shading","contours"]],[e.addInput(o,"background"),["raytracing"]],[e.addInput(o,"antialias"),["raytracing"]]];e.addMonitor(o,"fps"),e.addSeparator(),e.addButton({title:"Instructions"}).on("click",()=>{const n=document.createElement("a");n.href="https://github.com/ekzhang/graphics-workshop#readme",n.target="_blank",n.click()});const c=localStorage.getItem("graphics-workshop");if(c)try{e.importPreset(JSON.parse(c))}catch(n){console.warn(`Error loading saved preset: ${n}`)}const t=()=>{const n=e.exportPreset();localStorage.setItem("graphics-workshop",JSON.stringify(n));for(const[m,h]of a)m.hidden=!h.includes(o.project)};return t(),e.on("change",t),o}async function C(e){d=await(await fetch(e)).json()}function u(e){return[e.r/255,e.g/255,e.b/255]}function $(){try{return{quilt:i({frag:s.quiltFrag,vert:s.quiltVert}),landscape:i({frag:s.landscapeFrag,vert:s.landscapeVert}),shading:i({frag:s.shadingFrag,vert:s.shadingVert}),contours:i({frag:s.contoursFrag,vert:s.contoursVert}),raytracing:i({frag:s.raytracingFrag,vert:s.raytracingVert})}}catch{return null}}const Z=i({attributes:{position:[[-1,1],[-1,-1],[1,1],[1,-1]]},elements:[[0,1,2],[2,1,3]],uniforms:{view:()=>I([],g.eye,g.center,[0,1,0]),projection:({drawingBufferWidth:e,drawingBufferHeight:o})=>{const a=e/o;return S([],Math.PI/6,a,.01,100)},eye:()=>g.eye,center:()=>g.center,resolution:({drawingBufferWidth:e,drawingBufferHeight:o})=>[e,o],time:i.context("time")}}),ee={quilt:i({uniforms:{seed:()=>r.seed}}),landscape:i({uniforms:{seed:()=>r.seed,scale:()=>r.scale}}),shading:i({attributes:{position:()=>d.vertices,normal:()=>d.normals},uniforms:{kd:()=>u(r.kd),ks:()=>u(r.ks),shininess:()=>r.shininess},elements:()=>d.elements}),contours:i({attributes:{position:()=>d.vertices,normal:()=>d.normals},uniforms:{kd:()=>u(r.kd),ks:()=>u(r.ks),shininess:()=>r.shininess},elements:()=>d.elements}),raytracing:i({uniforms:{background:()=>u(r.background),antialias:()=>r.antialias}})};let F=$();C(r.mesh).then(()=>{const e=[...Array(60)].fill(0);i.frame(()=>{const o=e.shift(),a=performance.now();e.push(a),o!==0&&(r.fps=1e3/((a-o)/e.length)),Z(()=>{r.project==="contours"?i.clear({color:[1,1,1,1]}):i.clear({color:[0,0,0,1]}),ee[r.project](()=>{F&&F[r.project]()})})})});
