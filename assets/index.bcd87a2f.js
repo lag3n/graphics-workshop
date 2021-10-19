@@ -57,7 +57,12 @@ vec3 illuminate(vec3 lightPosition) {
 
     vec3 wo = normalize(eye - vPosition);
     vec3 r = reflect(normalize(wi), normalize(vNormal));
-    float d = abs(pow(dot(r, wo), length(ks)));
+    if (dot(r,wo) < 0)
+    {
+        float d = 0.0;
+    } else {
+        float d = abs(pow(dot(r, wo), shininess));
+    }
     vec3 new = d * ks;
 
     vec3 specular = new;
