@@ -410,7 +410,7 @@ vec3 illuminate(vec3 lightPosition, vec3 pos, vec3 wo, Hit h) {
     vec3 kd = h.material.kd;
 
     Ray r1 = Ray(pos, wi);
-    if(intersect(r1).time != inf) {
+    if(intersect(r1).time < 1.0) {
         return vec3(0.0);
     }
 
